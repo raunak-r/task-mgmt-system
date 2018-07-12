@@ -10,5 +10,11 @@ urlpatterns = [
 
 from views import Tasks
 urlpatterns += [
-	url(r'^tasks/', Tasks.as_view()),
+	url(r'^tasks/$', Tasks.as_view()),
 ]
+
+
+# from views import TaskSpecific
+# urlpatterns += [
+# 	url(r'^tasks/<>\d+/', TaskSpecific.as_view())
+# ]

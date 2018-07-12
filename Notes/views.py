@@ -14,7 +14,24 @@ class Pages(View):
 		return HttpResponse(html, status=200)
 
 class Tasks(View):
-	def get(self, request):		# - Get all tasks grouped by list (GET / tasks/)
+	def get(self, request):		
+
+# - Get the task details (GET /tasks/<task_id>/)
+		id = int(request.GET.get('id', '0'))
+		if id != 0:
+			task = []
+			tasks = Task.objects.filter(taskId=id)
+			for t in tasks:
+				str = ('DUE DATE = %s</br>\
+				TITLE = %s</br>\
+				DESCRIPTION = %s</br>\
+				AUTHOR = %s</br>\
+				</br></br>'
+				% (t.dueDate, t.title, t.description, t.createdBy))
+				task.append(str)
+			return HttpResponse(task, status=200)
+
+# - Get all tasks grouped by list (GET / tasks/)
 		taskList = []
 		Labels = ['***TODO***</br></br>', '***DOING***</br></br>', '***DONE***</br></br>']
 
@@ -43,10 +60,6 @@ class Tasks(View):
 
 # 	def delete(self, request):
 # 		# Delete a task (DELETE /tasks/<task_id>/)
-
-# class TaskSpecific(View):
-# 	def get(self, request):
-# 		# - Get the task details (GET /tasks/<task_id>/)
 
 
 # class Comments(View):
