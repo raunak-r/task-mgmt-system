@@ -1,6 +1,7 @@
 # Core Django Imports
 from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
+from django.template.loader import render_to_string
 from django.views.generic import View
 
 # Imports from models.py of this app
@@ -10,7 +11,7 @@ from models import Comment
 # Create your views here.
 class Pages(View):
 	def get(self, request):
-		html = "<html><body><h2>Welcome to our Task Management System</h2></body></html>"
+		html = render_to_string('base.html')
 		return HttpResponse(html, status=200)
 
 
@@ -116,12 +117,14 @@ class Comments(View):
 		comments = Comment.objects.all()
 		cmntList = []
 		for t in comments:
+			tasks = Task.objects.get(taskId = t.taskId_id)
 			str = ('COMMENT ID = %d</br>\
 					COMMENT = %s</br>\
 					TASK_ID = %s</br>\
+					TASK_TITLE = <b>%s</b></br>\
 					AUTHOR = %s</br>\
 					</br></br>'
-					% (t.commentId, t.commentText, t.taskId_id, t.createdBy))
+					% (t.commentId, t.commentText, t.taskId_id, tasks, t.createdBy))
 			cmntList.append(str)
 		return HttpResponse(cmntList, status=200)
 
