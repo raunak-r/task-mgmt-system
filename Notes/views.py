@@ -23,21 +23,20 @@ class Tasks(View):
 			task = []
 			tasks = Task.objects.filter(taskId=id)
 			for t in tasks:
-				str = ('<html><body>\
-				DUE DATE = %s</br>\
-				<h3>TITLE = %s</h3></br>\
+				str = ('<b>Label = %s</b></br>\
+				DUE DATE = <b>%s</b></br>\
+				TITLE = <b>%s</b></br>\
 				DESCRIPTION = %s</br>\
 				AUTHOR = %s</br>\
-				</br></br>\
-				</html></body>'
-				% (t.dueDate, t.title, t.description, t.createdBy))
+				</br></br>'
+				% (t.label, t.dueDate, t.title, t.description, t.createdBy))
 				task.append(str)
 			return HttpResponse(task, status=200)
 
 		# - Get all tasks grouped by list (GET / tasks/)
 		# http://127.0.0.1:8000/Notes/tasks/
 		taskList = []
-		Labels = ['***TODO***</br></br>', '***DOING***</br></br>', '***DONE***</br></br>']
+		Labels = ['<h3>***TODO***</h3>', '<h3>***DOING***</h3>', '<h3>***DONE***</h3>']
 
 		for i in range(1,4):
 			taskList.append(Labels[i-1])
@@ -45,8 +44,8 @@ class Tasks(View):
 			# print(tasks)
 			for t in tasks:
 				str = ('TASK %d</br>\
-					DUE DATE = %s</br>\
-				TITLE = %s</br>\
+				DUE DATE = <b>%s</b></br>\
+				TITLE = <b>%s</b></br>\
 				DESCRIPTION = %s</br>\
 				AUTHOR = %s</br>\
 				</br></br>'
@@ -116,10 +115,14 @@ class Comments(View):
 		# http://127.0.0.1:8000/Notes/comments/
 		comments = Comment.objects.all()
 		cmntList = []
-		for c in comments:
-			cmntList.append(c)
-			cmntList.append("</br>")
-
+		for t in comments:
+			str = ('COMMENT ID = %d</br>\
+					COMMENT = %s</br>\
+					TASK_ID = %s</br>\
+					AUTHOR = %s</br>\
+					</br></br>'
+					% (t.commentId, t.commentText, t.taskId_id, t.createdBy))
+			cmntList.append(str)
 		return HttpResponse(cmntList, status=200)
 
 	# def get(self, request, id):		#Get Comment by id in url

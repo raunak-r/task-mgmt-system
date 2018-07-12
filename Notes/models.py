@@ -59,7 +59,7 @@ class Comment(models.Model):
 		return '%s' % (self.commentText)
 
 	class Meta:
-		ordering = ["taskId"]
+		ordering = ["taskId_id"]
 
 	# class Admin:
 	# 	pass
