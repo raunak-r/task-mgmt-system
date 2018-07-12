@@ -23,11 +23,19 @@ class Task(models.Model):
 	createdBy = models.CharField(max_length=10, blank=False) #CANNOT be blank
 	dueDate = models.DateField(null=False)	##Cannot be null
 
+	# def __str__(self):
+	# 	return ('DUE DATE = %s</br>\
+	# 			TITLE = %s</br>\
+	# 			DESCRIPTION = %s</br>\
+	# 			AUTHOR = %s</br>\
+	# 			</br></br>'
+	# 			% (self.dueDate, self.title, self.description, self.createdBy))
+
 	def __str__(self):
 		return '%s' % (self.title)
 
 	class Meta:
-		ordering = ["-dueDate"]
+		ordering = ["dueDate"]
 
 	# class Admin:
 	# 	pass

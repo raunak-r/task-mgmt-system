@@ -7,5 +7,5 @@ urlpatterns = [
 
 # Import from Project Apps
 urlpatterns += [
-    url(r'^tasks/', include('Notes.urls')),
+    url(r'^Notes/', include('Notes.urls')),
 ]
