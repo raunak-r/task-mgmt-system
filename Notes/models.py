@@ -14,14 +14,16 @@ class Task(models.Model):
 		('#0000FF','Blue')
 	)	
 
+	# CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
+	# CAN BE BLANK = Description. Color. Comments
 	taskId = models.AutoField(primary_key=True)
-	title = models.CharField(max_length = 30, blank=False) #Cannot be blank.
-	description = models.CharField(max_length = 100, blank=True) #CAN be blank.
-	label = models.CharField(max_length=1, choices=LABEL_LIST, blank=False) #Cannot be blank.
-	color = models.CharField(max_length=7, choices=COLOURS, blank=True) #STORE A HEX FIELD. CAN be Blank.
-	comments = models.CharField(max_length=255, blank=True)	#Can be blank
-	createdBy = models.CharField(max_length=10, blank=False) #CANNOT be blank
-	dueDate = models.DateField(null=False)	##Cannot be null
+	title = models.CharField(max_length = 30, blank=False)
+	description = models.CharField(max_length = 100, blank=True)
+	label = models.CharField(max_length=1, choices=LABEL_LIST, blank=False)
+	color = models.CharField(max_length=7, choices=COLOURS, blank=True) #STORE A HEX FIELD.
+	comments = models.CharField(max_length=255, blank=True)
+	createdBy = models.CharField(max_length=10, blank=False)
+	dueDate = models.DateField(null=False)
 
 	# def __str__(self):
 	# 	return ('DUE DATE = %s</br>\
