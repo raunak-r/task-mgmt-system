@@ -14,7 +14,7 @@ urlpatterns += [
 ]
 
 
-# from views import TaskSpecific
-# urlpatterns += [
-# 	url(r'^tasks/<>\d+/', TaskSpecific.as_view())
-# ]
+from views import Comments
+urlpatterns += [
+	url(r'^comments/$', Comments.as_view())
+]
