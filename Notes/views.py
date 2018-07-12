@@ -64,15 +64,15 @@ class Tasks(View):
 		d = task['desc']
 		l = task['label']
 		col = task['color']
-		com = task['comments']
+		co = task['comments']
 		cby = task['author']
 		due = task['due']
 
 		# CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
 		if t == '' or l == '' or cby == '' or due == '':
-			return HttpResponse('Title, Label, CreatedBy, Due Date are mandatory Fields.')
+			return HttpResponse('Title, Label, CreatedBy, Due Date are mandatory Fields.', status=200)
 
-		entry = Task(title = t, description = d, label = l, color = col, comments = com, createdBy = cby, dueDate = due)
+		entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = cby, dueDate = due)
 		entry.save()
 		return HttpResponse('Success', status=200)
 
@@ -84,8 +84,8 @@ class Tasks(View):
 
 		taskDetails = QueryDict(request.body)
 		if 'title' in taskDetails.keys():
-				t = taskDetails['title']
-				entry.update(title = t)
+			t = taskDetails['title']
+			entry.update(title = t)
 		if 'desc' in taskDetails.keys():
 			d = taskDetails['desc']
 			entry.update(description = d)
@@ -96,8 +96,8 @@ class Tasks(View):
 			col = taskDetails['color']
 			entry.update(color = col)
 		if 'comments' in taskDetails.keys():
-			com = taskDetails['comments']
-			entry.update(color = com)
+			co = taskDetails['comments']
+			entry.update(color = co)
 		if 'due' in taskDetails.keys():
 			due = taskDetails['due']
 			entry.update(dueDate = due)
@@ -122,17 +122,42 @@ class Comments(View):
 
 		return HttpResponse(cmntList, status=200)
 
-	# def post(self, request):
-	# 	comment = request.POST
+	# def get(self, request, id):		#Get Comment by id in url
+	# 	# http://127.0.0.1:8000/Notes/comments/
+	# 	comments = Comment.objects.filter(taskId = id)
+	# 	cmntList = []
+	# 	for c in comments:
+	# 		cmntList.append(c)
+	# 		cmntList.append("</br>")
+	# 	return HttpResponse(cmntList, status=200)
+
+	def post(self, request):	# Post a new Comment
+		c = request.POST
+		print(c)
+		print('YAYAYA')
+		tid = c['tid']
+		cby = c['author']
+		ctext = c['text']
+		
+		if ctext == '' or tid == '' or cby == '':
+			return HttpResponse('Comment, TaskId, Author are mandatory Fields.')
+
+		entry = Comment(taskId_id = tid, createdBy = cby, commentText = ctext)
+		entry.save()
+		return HttpResponse('Success', status=200)
 
 	# def put(self, request):		# Edit a comment
 	# 	# http://127.0.0.1:8000/Notes/comments/?id=1
 	# 	id = int(request.GET.get('id'))
 	# 	entry = Comment.objects.get(commentId=id)
+	# 	# print(entry)
 
-	# 	c = request.POST
+	# 	c = QueryDict(request.body)
 	# 	print(c)
-	# 	t = c['com']
-	# 	# entry.update(commentText = t)
-
+	# 	co = str(c['comment'])
+	# 	print(co)
+	# 	if co == '':
+	# 		return HttpResponse('Please give the new comment', status=200)
+	# 	entry.update(commentText = co)
+	# 	print(entry)
 	# 	return HttpResponse('Comment Updated Successfully', status=200)

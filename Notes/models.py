@@ -49,7 +49,7 @@ class Task(models.Model):
 
 class Comment(models.Model):
 	commentId = models.AutoField(primary_key=True)
-	taskId = models.ForeignKey(Task, null=False, blank=False)
+	taskId = models.ForeignKey(Task, null=False, blank=False) #UNFORTUNATELY RENAMED TO taskId_id
 	createdOn = models.DateTimeField(auto_now_add=True)
 	UpdatedOn = models.DateTimeField(auto_now_add=True)
 	createdBy = models.CharField(max_length=10, blank=False) #CANNOT be blank.
