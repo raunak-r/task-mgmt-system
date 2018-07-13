@@ -118,6 +118,8 @@ class Comments(View):
 		# http://127.0.0.1:8000/Notes/comments/
 		comments = Comment.objects.all()
 		cmntList = []
+
+		# SHOWS COMMENTS ORDERED BY taskId_id
 		for t in comments:
 			tasks = Task.objects.get(taskId = t.taskId_id)
 			str = ('COMMENT ID = %d</br>\
@@ -125,8 +127,9 @@ class Comments(View):
 					TASK_TITLE = <b>%s</b></br>\
 					COMMENT = %s</br>\
 					AUTHOR = %s</br>\
+					LAST UPDATED ON = %s</br>\
 					</br></br>'
-					% (t.commentId, t.taskId_id, tasks, t.commentText, t.createdBy))
+					% (t.commentId, t.taskId_id, tasks, t.commentText, t.createdBy, t.UpdatedOn))
 			cmntList.append(str)
 		return HttpResponse(cmntList, status=200)
 
@@ -140,7 +143,7 @@ class Comments(View):
 	# 	return HttpResponse(cmntList, status=200)
 
 	def post(self, request):	# Post a new Comment
-		c = request.POSTt
+		c = request.POST
 		tid = c['tid']
 		cby = c['author']
 		ctext = c['text']

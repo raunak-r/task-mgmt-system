@@ -3,6 +3,7 @@
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+
 1. Set up a new virtualenv directory.
 
 ```
@@ -27,10 +28,10 @@ pip install -r /Master/requirements.txt
 
 1. Install Postgres App. A quick google search will do.
 2. install postgres packages using Pip
-
-		pip install postgres
-		pip install psycopg2
-		pip install psycopg2-binary
+```
+pip install postgres
+pip install psycopg2-binary
+```
 
 ## The following project contains 2 Modules:
 
@@ -38,11 +39,20 @@ pip install -r /Master/requirements.txt
 2. Master (Web Framework)
 
 ## Running the tests in Notes Application
-Currently the Project has these urls in working.
-```
-http://127.0.0.1:8000/tasks/index
 
+Currently the Project has these Api's in working.
 ```
+1. See all tasks Grouped by Label (Todo, Doing, Done)
+2. Post a new Task.
+3. Update a Task (Change Anything except Author)
+4. Delete a Task
+5. See a Task by it's ID
+
+5. See All Comments Ordered by Task ID
+6. Post a new comment given Task Id, Author and the Comment Text
+7. Update text on a comment.
+```
+
 ## Acknowledgments
 
 * The Definitive Guide to Django
