@@ -75,7 +75,7 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 
 ### Task Table
 FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
-CAN BE BLANK = Description. Color. Comments
+CAN BE BLANK = Description. Color. Comments. Attachment
 ```
 	LABEL_LIST = (
         ('1', 'Todo'),
@@ -94,6 +94,7 @@ CAN BE BLANK = Description. Color. Comments
 	description = CharField(max_length = 100, blank=True)
 	label = CharField(max_length=1, choices=LABEL_LIST, blank=False)
 	color = CharField(max_length=7, choices=COLOURS, blank=True) #STORE A HEX FIELD.
+	attachment = FileField(upload_to='attachments', blank=True)
 	comments = CharField(max_length=255, blank=True)
 	createdBy = CharField(max_length=10, blank=False)
 	dueDate = DateField(null=False)
