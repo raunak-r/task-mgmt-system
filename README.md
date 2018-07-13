@@ -41,6 +41,7 @@ pip install psycopg2-binary
 ## Running the tests in Notes Application
 
 Currently the Project has these Api's in working.
+###1. See all tasks Grouped by Label (Todo, Doing, Done)
 ```
 1. See all tasks Grouped by Label (Todo, Doing, Done)
 2. Post a new Task.

@@ -1,6 +1,7 @@
 # Core Django Imports
 from django.shortcuts import render
 from django.http import HttpResponse, QueryDict
+from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.views.generic import View
 
@@ -27,9 +28,9 @@ class Tasks(View):
 				% (t.label, t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
 
 		# ADD COMMENT ATTRIBUTES
-		if not cmntList:	#WHEN THERE ARE NO ADDITIONAL COMMENTS
+		if not cmntList:	#WHEN THERE ARE NO ADDITIONAL COMMENTS. WHEN SET IS EMPTY
 			str = str + '</br></br>'
-		else:
+		else:		#WHEN THE QUERY SET IS NOT EMPTY
 			str = str + 'Addn. Comments</br>'
 			for c in cmntList:
 				str = str + ('Id = %d\
@@ -122,26 +123,30 @@ class Tasks(View):
 		task.delete()
 		return HttpResponse('Task Deleted', status=200)
 
-
 class Comments(View):
 	def get(self, request):		#Get all Comments
 		# http://127.0.0.1:8000/Notes/comments/
-		comments = Comment.objects.all()
-		cmntList = []
 
-		# SHOWS COMMENTS ORDERED BY taskId_id
-		for t in comments:
-			tasks = Task.objects.get(taskId = t.taskId_id)
-			str = ('COMMENT ID = %d</br>\
-					TASK_ID = %s</br>\
-					TASK_TITLE = <b>%s</b></br>\
-					COMMENT = %s</br>\
-					AUTHOR = %s</br>\
-					LAST UPDATED ON = %s</br>\
-					</br></br>'
-					% (t.commentId, t.taskId_id, tasks, t.commentText, t.createdBy, t.UpdatedOn))
-			cmntList.append(str)
-		return HttpResponse(cmntList, status=200)
+		comments = []
+		for i in range(1,4):
+			tasks = Task.objects.filter(label=i)	#Read all tasks by label
+
+			for t in tasks:
+				cmntList = Comment.objects.filter(taskId_id = t.taskId) #filter comments by that Task ID
+				str = ''
+				if cmntList:	#If cmntlist NOT empty
+					str = ('Task Id = %d\
+							<b>Title = %s</b></br>'
+							% (t.taskId, t.title))
+					for c in cmntList:
+						str = str + ('Id = %d\
+						Text = <i>%s</i></br>\
+						Posted By = %s\
+						Date Posted = %s</br>'
+						%(c.commentId, c.commentText, c.createdBy, c.createdOn))
+					str = str + '</br>'
+				comments.append(str)
+		return HttpResponse(comments, status=200)
 
 	# def get(self, request, id):		#Get Comment by id in url
 	# 	# http://127.0.0.1:8000/Notes/comments/
