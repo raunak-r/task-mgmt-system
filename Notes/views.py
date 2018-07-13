@@ -14,8 +14,32 @@ class Pages(View):
 		html = render_to_string('base.html')
 		return HttpResponse(html, status=200)
 
-
 class Tasks(View):
+	def createTaskStr(self, t):		#Format the string for printing purposes
+		cmntList = Comment.objects.filter(taskId_id = t.taskId)
+		str = ('LABEL = %s</br>\
+				<b>TASK ID = %d</b></br>\
+				DUE DATE = <b>%s</b></br>\
+				TITLE = <b>%s</b></br>\
+				DESCRIPTION = %s</br>\
+				AUTHOR = %s</br>\
+				COMMENT = %s</br>'
+				% (t.label, t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
+
+		# ADD COMMENT ATTRIBUTES
+		if not cmntList:	#WHEN THERE ARE NO ADDITIONAL COMMENTS
+			str = str + '</br></br>'
+		else:
+			str = str + 'Addn. Comments</br>'
+			for c in cmntList:
+				str = str + ('Id = %d\
+				<b>Text =</b> %s\
+				<b>Posted By =</b> %s</br>'
+				%(c.commentId, c.commentText, c.createdBy))
+
+			str = str + '</br></br>'
+		return str
+
 	def get(self, request):		
 		# - Get the task details (GET /tasks/<task_id>/)
 		# http://127.0.0.1:8000/Notes/tasks/?id=6
@@ -24,15 +48,9 @@ class Tasks(View):
 			task = []
 			tasks = Task.objects.filter(taskId=id)
 			for t in tasks:
-				str = ('<b>Label = %s</b></br>\
-				DUE DATE = <b>%s</b></br>\
-				TITLE = <b>%s</b></br>\
-				DESCRIPTION = %s</br>\
-				AUTHOR = %s</br>\
-				COMMENT = %s</br>\
-				</br></br>'
-				% (t.label, t.dueDate, t.title, t.description, t.createdBy, t.comments))
-				task.append(str)
+				# Send the Task Object to receive a nicely formatted string for printing
+				string = self.createTaskStr(t)
+				task.append(string)
 			return HttpResponse(task, status=200)
 
 		# - Get all tasks grouped by list (GET / tasks/)
@@ -43,30 +61,9 @@ class Tasks(View):
 		for i in range(1,4):
 			taskList.append(Labels[i-1])
 			tasks = Task.objects.filter(label=i)
-			# print(tasks)
 			for t in tasks:
-				cmntList = Comment.objects.filter(taskId_id = t.taskId)
-				
-				str = ('TASK %d</br>\
-				DUE DATE = <b>%s</b></br>\
-				TITLE = <b>%s</b></br>\
-				DESCRIPTION = %s</br>\
-				AUTHOR = %s</br>\
-				COMMENT''s BY AUTHOR = %s</br>'
-				% (t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
-
-				if not cmntList:	#WHEN THERE ARE NO ADDITIONAL COMMENTS
-					str = str + '</br></br>'
-				else:
-					str = str + 'Addn. Comments</br>'
-					for c in cmntList:
-						str = str + ('Id = %d\
-						Text = %s\
-						Posted By = %s</br>'
-						%(c.commentId, c.commentText, c.createdBy))
-
-					str = str + '</br></br>'
-				
+				# Send the Task Object to receive a nicely formatted string for printing
+				str = self.createTaskStr(t)	
 				taskList.append(str)
 				
 		return HttpResponse(taskList, status=200)
