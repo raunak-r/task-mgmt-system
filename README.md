@@ -41,17 +41,34 @@ pip install psycopg2-binary
 ## Running the tests in Notes Application
 
 Currently the Project has these Api's in working.
-###1. See all tasks Grouped by Label (Todo, Doing, Done)
+###
 ```
+INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
+
 1. See all tasks Grouped by Label (Todo, Doing, Done)
-2. Post a new Task.
-3. Update a Task (Change Anything except Author)
+	> /Notes/tasks
+
+2. Post a new Task
+	> POST via Postman via /Notes/tasks/
+
+3. Update a Task (Change Anything except Author) 
+	> PUT via Postman via /Notes/tasks/?id=
+
 4. Delete a Task
+	> DELETE via Postman via /Notes/tasks/?id=
+
 5. See a Task by it's ID
+	> /Notes/tasks/?id=
+
 
 5. See All Comments Ordered by Task ID
+	> /Notes/comments
+
 6. Post a new comment given Task Id, Author and the Comment Text
-7. Update text on a comment.
+	> POST via Postman via 
+
+7. Update text on a comment given Comment ID
+	> PUT via Postman via /Notes/comments/?id=
 ```
 
 ## Acknowledgments
