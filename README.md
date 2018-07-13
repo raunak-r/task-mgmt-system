@@ -74,8 +74,8 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 ## DATABASE EXPLAINED
 
 ### Task Table
-FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
-CAN BE BLANK = Description. Color. Comments
+* FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
+* CAN BE BLANK = Description. Color. Comments
 ```
 	LABEL_LIST = (
         ('1', 'Todo'),
@@ -100,7 +100,8 @@ CAN BE BLANK = Description. Color. Comments
 ```
 
 ### Comments Table
-# FIELDS THAT CANNOT BE BLANK = createdBy, CommentText. Rest all are auto inserted.
+* FIELDS THAT CANNOT BE BLANK = createdBy, CommentText.
+* Rest all are auto inserted.
 ```
 	commentId = AutoField(primary_key=True)
 	taskId = ForeignKey(Task, null=False, blank=False)
