@@ -74,8 +74,8 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 ## DATABASE EXPLAINED
 
 ### Task Table
-FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
-CAN BE BLANK = Description. Color. Comments. Attachment
+* FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
+* CAN BE BLANK = Description. Color. Comments. Attachment
 ```
 	LABEL_LIST = (
         ('1', 'Todo'),
