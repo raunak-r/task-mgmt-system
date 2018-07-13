@@ -121,12 +121,12 @@ class Comments(View):
 		for t in comments:
 			tasks = Task.objects.get(taskId = t.taskId_id)
 			str = ('COMMENT ID = %d</br>\
-					COMMENT = %s</br>\
 					TASK_ID = %s</br>\
 					TASK_TITLE = <b>%s</b></br>\
+					COMMENT = %s</br>\
 					AUTHOR = %s</br>\
 					</br></br>'
-					% (t.commentId, t.commentText, t.taskId_id, tasks, t.createdBy))
+					% (t.commentId, t.taskId_id, tasks, t.commentText, t.createdBy))
 			cmntList.append(str)
 		return HttpResponse(cmntList, status=200)
 
@@ -136,13 +136,11 @@ class Comments(View):
 	# 	cmntList = []
 	# 	for c in comments:
 	# 		cmntList.append(c)
-	# 		cmntList.append("</br>")
+	# 		cmntList.aplapend("</br>")
 	# 	return HttpResponse(cmntList, status=200)
 
 	def post(self, request):	# Post a new Comment
-		c = request.POST
-		print(c)
-		print('YAYAYA')
+		c = request.POSTt
 		tid = c['tid']
 		cby = c['author']
 		ctext = c['text']
