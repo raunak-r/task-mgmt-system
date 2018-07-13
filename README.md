@@ -46,7 +46,7 @@ Currently the Project has these Api's in working.
 INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 
 1. See all tasks Grouped by Label (Todo, Doing, Done)
-	> /Notes/tasks
+	> GET via Postman via /Notes/tasks
 
 2. Post a new Task
 	> POST via Postman via /Notes/tasks/
@@ -62,7 +62,7 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 
 
 5. See All Comments Ordered by Task ID
-	> /Notes/comments
+	> GET via Postman via /Notes/comments
 
 6. Post a new comment given Task Id, Author and the Comment Text
 	> POST via Postman via 
@@ -71,6 +71,44 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 	> PUT via Postman via /Notes/comments/?id=
 ```
 
+## DATABASE EXPLAINED
+
+### Task Table
+FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
+CAN BE BLANK = Description. Color. Comments
+```
+	LABEL_LIST = (
+        ('1', 'Todo'),
+        ('2', 'Doing'),
+        ('3', 'Done'),
+    )
+	COLOURS = (
+		('#808080','Gray'),
+		('#000000','Black'),
+		('#FF0000','Red'),
+		('#0000FF','Blue')
+	)	
+
+	taskId = AutoField(primary_key=True)
+	title = CharField(max_length = 30, blank=False)
+	description = CharField(max_length = 100, blank=True)
+	label = CharField(max_length=1, choices=LABEL_LIST, blank=False)
+	color = CharField(max_length=7, choices=COLOURS, blank=True) #STORE A HEX FIELD.
+	comments = CharField(max_length=255, blank=True)
+	createdBy = CharField(max_length=10, blank=False)
+	dueDate = DateField(null=False)
+```
+
+### Comments Table
+# FIELDS THAT CANNOT BE BLANK = createdBy, CommentText. Rest all are auto inserted.
+```
+	commentId = AutoField(primary_key=True)
+	taskId = ForeignKey(Task, null=False, blank=False)
+	createdOn = DateTimeField(auto_now_add=True)
+	UpdatedOn = DateTimeField(auto_now_add=True)
+	createdBy = CharField(max_length=10, blank=False)
+	commentText = CharField(max_length=100, blank=False)
+```
 ## Acknowledgments
 
 * The Definitive Guide to Django

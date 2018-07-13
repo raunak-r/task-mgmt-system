@@ -41,7 +41,7 @@ class Tasks(View):
 			str = str + '</br></br>'
 		return str
 
-	def get(self, request):		
+	def get(self, request):
 		# - Get the task details (GET /tasks/<task_id>/)
 		# http://127.0.0.1:8000/Notes/tasks/?id=6
 		id = int(request.GET.get('id', '0'))
