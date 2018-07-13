@@ -45,15 +45,28 @@ class Tasks(View):
 			tasks = Task.objects.filter(label=i)
 			# print(tasks)
 			for t in tasks:
+				cmntList = Comment.objects.filter(taskId_id = t.taskId)
+				
 				str = ('TASK %d</br>\
 				DUE DATE = <b>%s</b></br>\
 				TITLE = <b>%s</b></br>\
 				DESCRIPTION = %s</br>\
 				AUTHOR = %s</br>\
-				COMMENT = %s</br>\
-				</br></br>'
+				COMMENT''s BY AUTHOR = %s</br>'
 				% (t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
 
+				if not cmntList:	#WHEN THERE ARE NO ADDITIONAL COMMENTS
+					str = str + '</br></br>'
+				else:
+					str = str + 'Addn. Comments</br>'
+					for c in cmntList:
+						str = str + ('Id = %d\
+						Text = %s\
+						Posted By = %s</br>'
+						%(c.commentId, c.commentText, c.createdBy))
+
+					str = str + '</br></br>'
+				
 				taskList.append(str)
 				
 		return HttpResponse(taskList, status=200)
