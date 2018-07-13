@@ -29,8 +29,9 @@ class Tasks(View):
 				TITLE = <b>%s</b></br>\
 				DESCRIPTION = %s</br>\
 				AUTHOR = %s</br>\
+				COMMENT = %s</br>\
 				</br></br>'
-				% (t.label, t.dueDate, t.title, t.description, t.createdBy))
+				% (t.label, t.dueDate, t.title, t.description, t.createdBy, t.comments))
 				task.append(str)
 			return HttpResponse(task, status=200)
 
@@ -49,8 +50,9 @@ class Tasks(View):
 				TITLE = <b>%s</b></br>\
 				DESCRIPTION = %s</br>\
 				AUTHOR = %s</br>\
+				COMMENT = %s</br>\
 				</br></br>'
-				% (t.taskId, t.dueDate, t.title, t.description, t.createdBy))
+				% (t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
 
 				taskList.append(str)
 				
@@ -80,7 +82,7 @@ class Tasks(View):
 		# http://127.0.0.1:8000/Notes/tasks/?id=3
 
 		id = int(request.GET.get('id'))
-		entry = Task.objects.get(taskId=id)
+		entry = Task.objects.filter(taskId=id)
 
 		taskDetails = QueryDict(request.body)
 		if 'title' in taskDetails.keys():
@@ -97,7 +99,7 @@ class Tasks(View):
 			entry.update(color = col)
 		if 'comments' in taskDetails.keys():
 			co = taskDetails['comments']
-			entry.update(color = co)
+			entry.update(comments = co)
 		if 'due' in taskDetails.keys():
 			due = taskDetails['due']
 			entry.update(dueDate = due)
@@ -152,18 +154,15 @@ class Comments(View):
 		entry.save()
 		return HttpResponse('Success', status=200)
 
-	# def put(self, request):		# Edit a comment
-	# 	# http://127.0.0.1:8000/Notes/comments/?id=1
-	# 	id = int(request.GET.get('id'))
-	# 	entry = Comment.objects.get(commentId=id)
-	# 	# print(entry)
+	def put(self, request):		# Edit a comment
+		# http://127.0.0.1:8000/Notes/comments/?id=1
+		id = int(request.GET.get('id'))
+		entry = Comment.objects.filter(commentId=id)
+		# print(entry)
 
-	# 	c = QueryDict(request.body)
-	# 	print(c)
-	# 	co = str(c['comment'])
-	# 	print(co)
-	# 	if co == '':
-	# 		return HttpResponse('Please give the new comment', status=200)
-	# 	entry.update(commentText = co)
-	# 	print(entry)
-	# 	return HttpResponse('Comment Updated Successfully', status=200)
+		c = QueryDict(request.body)
+		c = str(c['comment'])
+		if c == '':
+			return HttpResponse('Please give the new comment', status=200)
+		entry.update(commentText = c)
+		return HttpResponse('Comment Updated Successfully', status=200)

@@ -10,13 +10,13 @@ urlpatterns = [
 
 from views import Tasks
 urlpatterns += [
-	url(r'^tasks/$', Tasks.as_view()),
+	url(r'^tasks', Tasks.as_view()),
 ]
 
 
 from views import Comments
 urlpatterns += [
-	url(r'^comments/$', Comments.as_view())
+	url(r'^comments', Comments.as_view())
 ]
 
 # from views import Comments
