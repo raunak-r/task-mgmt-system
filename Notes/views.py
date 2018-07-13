@@ -48,6 +48,8 @@ class Tasks(View):
 		if id != 0:
 			task = []
 			tasks = Task.objects.filter(taskId=id)
+			if not tasks:	#TASK NOT FOUND
+				return HttpResponse("Task Not Found", status=200)
 			for t in tasks:
 				# Send the Task Object to receive a nicely formatted string for printing
 				string = self.createTaskStr(t)
@@ -70,24 +72,29 @@ class Tasks(View):
 		return HttpResponse(taskList, status=200)
 
 	def post(self, request):		# - Create a task (POST /tasks/
-		task = request.POST
+		try:
+			task = request.POST
 		
-		# RECEIVE THE VALUES
-		t = task['title']
-		d = task['desc']
-		l = task['label']
-		col = task['color']
-		co = task['comments']
-		cby = task['author']
-		due = task['due']
+			# RECEIVE THE VALUES
+			t = task['title']
+			d = task['desc']
+			l = task['label']
+			col = task['color']
+			co = task['comments']
+			cby = task['author']
+			due = task['due']
 
-		# CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
-		if t == '' or l == '' or cby == '' or due == '':
-			return HttpResponse('Title, Label, CreatedBy, Due Date are mandatory Fields.', status=200)
+			# CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
+			if t == '' or l == '' or cby == '' or due == '':
+				return HttpResponse('Title, Label, CreatedBy, Due Date are mandatory Fields.', status=200)
 
-		entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = cby, dueDate = due)
-		entry.save()
-		return HttpResponse('Success', status=200)
+			entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = cby, dueDate = due)
+			entry.save()
+			return HttpResponse('Success', status=200)
+		except Exception as exception:
+			error = "Please provide all the details:- 'title', 'desc', 'label', 'color', 'comments', 'author', 'due'"
+
+		return HttpResponse(error, status=500)
 
 	def put(self, request):		# - Edit a task (PUT /tasks/<task_id>/)
 		# http://127.0.0.1:8000/Notes/tasks/?id=3
