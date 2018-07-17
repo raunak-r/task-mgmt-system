@@ -24,7 +24,7 @@ class Tasks(View):
 				TITLE = <b>%s</b></br>\
 				DESCRIPTION = %s</br>\
 				AUTHOR = %s</br>\
-				COMMENT = %s</br>'
+				COMMENT = <i>%s</i></br>'
 				% (t.label, t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
 
 		# ADD COMMENT ATTRIBUTES
@@ -34,7 +34,7 @@ class Tasks(View):
 			str = str + 'Addn. Comments</br>'
 			for c in cmntList:
 				str = str + ('Id = %d\
-				<b>Text =</b> %s\
+				<b>Text =</b> <i>%s</i>\
 				<b>Posted By =</b> %s</br>'
 				%(c.commentId, c.commentText, c.createdBy))
 
@@ -91,7 +91,7 @@ class Tasks(View):
 
 			# CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
 			if t == '' or l == '' or cby == '' or due == '':
-				return HttpResponse('Title, Label, CreatedBy, Due Date are mandatory Fields.', status=200)
+				return HttpResponse('title, label, author, due Date are mandatory Fields.', status=200)
 
 			entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = cby, dueDate = due)
 			entry.save()
@@ -111,6 +111,9 @@ class Tasks(View):
 				return HttpResponse("Task Not Found. Therefore cannot be updated", status=200)
 
 			taskDetails = QueryDict(request.body)
+			if not taskDetails:
+				return HttpResponse('Please provide something to change. Attributes can be given in the same format as in POST', status=200)
+
 			if 'title' in taskDetails.keys():
 				t = taskDetails['title']
 				entry.update(title = t)
@@ -202,7 +205,7 @@ class Comments(View):
 			entry.save()
 			return HttpResponse('Success', status=200)
 		except Exception as e:
-			return HttpResponse('Please Provide a Task Id which exists in the Database', status=200)
+			return HttpResponse('Please Provide a Task Id which exists in the Database. text, tid, author are mandatory Fields.', status=200)
 
 	def put(self, request):		# Edit a comment
 		# http://127.0.0.1:8000/Notes/comments/?id=1
@@ -219,5 +222,5 @@ class Comments(View):
 			entry.update(commentText = c)
 			return HttpResponse('Comment Updated Successfully', status=200)
 		except Exception as e:
-			return HttpResponse(e, status=200)
+			return HttpResponse('Provide commentId in the url, and new comment in comment attribute.', status=200)
 			
