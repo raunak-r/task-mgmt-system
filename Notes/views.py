@@ -48,13 +48,11 @@ class Tasks(View):
 			id = int(request.GET.get('id', '0'))
 			if id != 0:
 				task = []
-				tasks = Task.objects.filter(taskId=id)
-				if not tasks:	#TASK NOT FOUND
-					return HttpResponse("Task Not Found", status=200)
-				for t in tasks:
-					# Send the Task Object to receive a nicely formatted string for printing
-					string = self.createTaskStr(t)
-					task.append(string)
+				tasks = Task.objects.get(taskId=id)
+				# Send the Task Object to receive a nicely formatted string for printing
+				string = self.createTaskStr(tasks)
+				task.append(string)
+
 				return HttpResponse(task, status=200)
 
 			# - Get all tasks grouped by list (GET / tasks/)
@@ -66,15 +64,17 @@ class Tasks(View):
 				taskList.append(Labels[i-1])
 				tasks = Task.objects.filter(label=i)
 				if not tasks: #i.e. Query Set returned 0 Objects
-					return HttpResponse("No Tasks Present in Database", status=200)
+					taskList.append("<b>No Tasks Present in Database</br></b>") 
 				for t in tasks:
 					# Send the Task Object to receive a nicely formatted string for printing
 					str = self.createTaskStr(t)	
 					taskList.append(str)
-					
 			return HttpResponse(taskList, status=200)
+
+		except Task.DoesNotExist as e:
+			return HttpResponse("Task Not Found", status=200)
 		except Exception as e:
-			return HttpResponse(e, status=200)
+			return HttpResponse(e, status=400)
 
 	def post(self, request):		# - Create a task (POST /tasks/
 		try:
@@ -106,47 +106,43 @@ class Tasks(View):
 		# http://127.0.0.1:8000/Notes/tasks/?id=3
 		try:
 			id = int(request.GET.get('id'))
-			entry = Task.objects.filter(taskId=id)
-			if not entry:
-				return HttpResponse("Task Not Found. Therefore cannot be updated", status=200)
+			entry = Task.objects.get(taskId=id)
 
 			taskDetails = QueryDict(request.body)
 			if not taskDetails:
 				return HttpResponse('Please provide something to change. Attributes can be given in the same format as in POST', status=200)
 
 			if 'title' in taskDetails.keys():
-				t = taskDetails['title']
-				entry.update(title = t)
+				entry.title = taskDetails['title']
 			if 'desc' in taskDetails.keys():
-				d = taskDetails['desc']
-				entry.update(description = d)
+				entry.description = taskDetails['desc']
 			if 'label' in taskDetails.keys():
-				l = taskDetails['label']
-				entry.update(label = l)
+				entry.label = taskDetails['label']
 			if 'color' in taskDetails.keys():
-				col = taskDetails['color']
-				entry.update(color = col)
+				entry.color = taskDetails['color']
 			if 'comments' in taskDetails.keys():
-				co = taskDetails['comments']
-				entry.update(comments = co)
+				entry.comments = taskDetails['comments']
 			if 'due' in taskDetails.keys():
-				due = taskDetails['due']
-				entry.update(dueDate = due)
+				entry.dueDate = taskDetails['due']
 
+			entry.save()
 			return HttpResponse('Task Updated Successfully', status=200)
+		except Task.DoesNotExist as e:
+			return HttpResponse("Task Not Found. Therefore cannot be updated", status=200)
 		except Exception as e:
 			return HttpResponse(e, status=200)
 
 	def delete(self, request):		# Delete a task (DELETE /tasks/<task_id>/)
 		try:	
 			id = int(request.GET.get('id'))
-			task = Task.objects.filter(taskId=id)
-			if not task:	#TASK NOT FOUND
-				return HttpResponse("Task Not Found", status=200)
+			task = Task.objects.get(taskId=id)			
 			task.delete()
+
 			return HttpResponse('Task Deleted', status=200)
+		except Task.DoesNotExist as e:
+			return HttpResponse('Task Not Found, Cannot be Deleted.', status=200)
 		except Exception as e:
-			return HttpResponse(e, status=200)
+			return HttpResponse(e, status=200)	
 
 class Comments(View):
 	def get(self, request):		#Get all Comments
@@ -161,8 +157,6 @@ class Comments(View):
 			comments = []
 			for i in range(1,4):
 				tasks = Task.objects.filter(label=i)	#Read all tasks by label
-				if not tasks:
-					return HttpResponse('No Tasks in the Database, Therefore No Comments.', status=200)
 				for t in tasks:
 					cmntList = Comment.objects.filter(taskId_id = t.taskId) #filter comments by that Task ID
 					str = ''
@@ -180,7 +174,7 @@ class Comments(View):
 					comments.append(str)
 			return HttpResponse(comments, status=200)
 		except Exception as e:
-			return HttpResponse(e, status=200)
+			return HttpResponse(e, status=400)
 
 	# def get(self, request, id):		#Get Comment by id in url
 	# 	# http://127.0.0.1:8000/Notes/comments/
@@ -211,16 +205,17 @@ class Comments(View):
 		# http://127.0.0.1:8000/Notes/comments/?id=1
 		try:
 			id = int(request.GET.get('id'))
-			entry = Comment.objects.filter(commentId=id)
-			if not entry:
-				return HttpResponse("Comment Not Found. Therefore cannot be updated", status=200)
+			entry = Comment.objects.get(commentId=id)
 
 			c = QueryDict(request.body)
 			c = str(c['comment'])
 			if c == '':
 				return HttpResponse('Please give the new comment', status=200)
-			entry.update(commentText = c)
+			entry.commentText = c
+			entry.save()
 			return HttpResponse('Comment Updated Successfully', status=200)
+
+		except Comment.DoesNotExist, e:
+			return HttpResponse("Comment Not Found. Therefore cannot be updated", status=200)
 		except Exception as e:
 			return HttpResponse('Provide commentId in the url, and new comment in comment attribute.', status=200)
-			
