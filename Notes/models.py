@@ -1,11 +1,18 @@
 from django.db import models
 
 # Create your models here.
-# class User(models.Model):
-# 	userId = models.AutoField(primary_key=True)
-# 	name = models.CharField(max_length=20, blank=False)
-# 	createdOn = models.DateTimeField(auto_now_add=True)
-# 	isActive = models.BooleanField(default=True)
+class User(models.Model):
+	# Username and Active Status can be changed later.
+	userId = models.AutoField(primary_key=True)
+	username = models.CharField(max_length=20, blank=False)
+	createdOn = models.DateTimeField(auto_now_add=True)
+	isActive = models.BooleanField(default=True)
+
+	def __str__(self):
+		return '%s ' % (self.username)
+
+	class Meta:
+		ordering = ["username"]
 	
 class Task(models.Model):
 	LABEL_LIST = (
@@ -29,9 +36,10 @@ class Task(models.Model):
 	color = models.CharField(max_length=7, choices=COLOURS, blank=True) #STORE A HEX FIELD.
 	attachment = models.FileField(upload_to='attachments', blank=True)
 	comments = models.CharField(max_length=255, blank=True)
-	createdBy = models.CharField(max_length=10, blank=False)
+	# createdBy = models.CharField(max_length=10, blank=False)
 	dueDate = models.DateField(null=False)
 	isDeleted = models.BooleanField(default=False)
+	createdBy = models.ForeignKey(User, null=True)
 
 	def __str__(self):
 		return '%s ' % (self.title)

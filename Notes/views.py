@@ -232,4 +232,3 @@ class Statistics(View):
 
 		e = Task.objects.get(taskId = c[0].get('taskId'))
 		return HttpResponse('Task with maximum comments is = <b>%s</b> with %d Comments' %(e.title, c[0].get('total')), status=200)
-

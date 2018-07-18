@@ -7,6 +7,7 @@ from django.contrib import admin
 
 from models import Task
 from models import Comment
+from models import User
 
 class TaskModelAdmin(admin.ModelAdmin):
 	list_display = ['taskId', 'title', 'description', 'label', 'color', 'comments', 'createdBy', 'dueDate']
@@ -26,7 +27,7 @@ class TaskModelAdmin(admin.ModelAdmin):
 class CommentModelAdmin(admin.ModelAdmin):
 	list_display = ['commentId', 'commentText', 'createdOn', 'UpdatedOn', 'createdBy', 'taskId_id']
 	
-	# To list only those Tasks which are referenced by the Foreign Key in Comments Table.
+	# Show Filters on the side bar and list only those Tasks which are referenced by the Foreign Key in Comments Table.
 	list_filter = (
 		('taskId_id', admin.RelatedOnlyFieldListFilter),
 	)
@@ -34,5 +35,14 @@ class CommentModelAdmin(admin.ModelAdmin):
 	class Meta:
 		model = Comment
 
+class UserModelAdmin(admin.ModelAdmin):
+	list_display = ['userId', 'username', 'createdOn']
+	list_editable = ['userId', 'username']
+	list_filter = [('isActive', admin.BooleanFieldListFilter)]
+
+	class Meta:
+		model = User
+
 admin.site.register(Task, TaskModelAdmin)
 admin.site.register(Comment, CommentModelAdmin)
+admin.site.register(User, UserModelAdmin)
