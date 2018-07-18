@@ -19,6 +19,12 @@ urlpatterns += [
 	url(r'^comments', Comments.as_view())
 ]
 
+
+from views import Statistics
+urlpatterns += [
+	url(r'^stats', Statistics.as_view())
+]
+
 # from views import Comments
 # urlpatterns += [
 # 	url(r'^comments/(\d+)$', Comments.as_view())

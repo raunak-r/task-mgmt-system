@@ -4,6 +4,7 @@ from django.http import HttpResponse, QueryDict
 from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.views.generic import View
+from django.db.models import Count
 
 # Imports from models.py of this app
 from models import Task
@@ -48,7 +49,7 @@ class Tasks(View):
 			id = int(request.GET.get('id', '0'))
 			if id != 0:
 				task = []
-				tasks = Task.objects.get(taskId=id)
+				tasks = Task.objects.get(taskId=id, isDeleted = False)
 				# Send the Task Object to receive a nicely formatted string for printing
 				string = self.createTaskStr(tasks)
 				task.append(string)
@@ -62,7 +63,7 @@ class Tasks(View):
 
 			for i in range(1,4):
 				taskList.append(Labels[i-1])
-				tasks = Task.objects.filter(label=i)
+				tasks = Task.objects.filter(label=i, isDeleted = False)
 				if not tasks: #i.e. Query Set returned 0 Objects
 					taskList.append("<b>No Tasks Present in Database</br></b>") 
 				for t in tasks:
@@ -221,3 +222,14 @@ class Comments(View):
 			return HttpResponse("Comment Not Found. Therefore cannot be updated", status=200)
 		except Exception as e:
 			return HttpResponse('Provide commentId in the url, and new comment in comment attribute.', status=200)
+
+class Statistics(View):
+	def get(self, request):
+		c = Comment.objects.values('taskId').annotate(total=Count('taskId')).order_by('-total')
+		# print(c)
+		# print(c[0])
+		# print(c[0].get('taskId'))
+
+		e = Task.objects.get(taskId = c[0].get('taskId'))
+		return HttpResponse('Task with maximum comments is = <b>%s</b> with %d Comments' %(e.title, c[0].get('total')), status=200)
+

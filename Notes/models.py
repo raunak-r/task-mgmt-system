@@ -1,6 +1,12 @@
 from django.db import models
 
 # Create your models here.
+# class User(models.Model):
+# 	userId = models.AutoField(primary_key=True)
+# 	name = models.CharField(max_length=20, blank=False)
+# 	createdOn = models.DateTimeField(auto_now_add=True)
+# 	isActive = models.BooleanField(default=True)
+	
 class Task(models.Model):
 	LABEL_LIST = (
         ('1', 'Todo'),
