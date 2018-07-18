@@ -79,7 +79,6 @@ class Tasks(View):
 	def post(self, request):		# - Create a task (POST /tasks/
 		try:
 			task = request.POST
-		
 			# RECEIVE THE VALUES
 			t = task['title']
 			d = task['desc']
@@ -96,7 +95,7 @@ class Tasks(View):
 			entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = cby, dueDate = due)
 			entry.save()
 			return HttpResponse('Success', status=200)
-		except Exception as exception:
+		except Exception, e:
 			error = "Please provide all the details:- 'title', 'desc',\
 					'label', 'color', 'comments', 'author', 'due' where\
 					Title, Label, CreatedBy, Due Date are mandatory Fields."
@@ -134,11 +133,14 @@ class Tasks(View):
 
 	def delete(self, request):		# Delete a task (DELETE /tasks/<task_id>/)
 		try:	
-			id = int(request.GET.get('id'))
-			task = Task.objects.get(taskId=id)			
+			id = int(request.GET.get('id', '0'))
+			if id == 0:
+				return HttpResponse('Please give taskId in the url.', status=200)
+			
+			task = Task.objects.get(taskId=id)
 			task.delete()
-
 			return HttpResponse('Task Deleted', status=200)
+
 		except Task.DoesNotExist as e:
 			return HttpResponse('Task Not Found, Cannot be Deleted.', status=200)
 		except Exception as e:

@@ -25,7 +25,7 @@ class Task(models.Model):
 	comments = models.CharField(max_length=255, blank=True)
 	createdBy = models.CharField(max_length=10, blank=False)
 	dueDate = models.DateField(null=False)
-	# is_deleted = models.BooleanField(default=False)
+	isDeleted = models.BooleanField(default=False)
 
 	def __str__(self):
 		return '%s ' % (self.title)
@@ -36,6 +36,9 @@ class Task(models.Model):
 	# class Admin:
 	# 	pass
 
+	def soft_del(self):
+		self.isDeleted = True
+		self.save()
 
 # If blank=True then the field will not be required, whereas if it's False the field cannot be blank.
 # The exception is CharFields and TextFields, which in Django are never saved as NULL. Blank values are stored in the DB as an empty string ('')
