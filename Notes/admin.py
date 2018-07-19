@@ -29,7 +29,8 @@ class CommentModelAdmin(admin.ModelAdmin):
 	
 	# Show Filters on the side bar and list only those Tasks which are referenced by the Foreign Key in Comments Table.
 	list_filter = (
-		('taskId_id', admin.RelatedOnlyFieldListFilter),
+		('taskId', admin.RelatedOnlyFieldListFilter),
+		('createdBy', admin.RelatedOnlyFieldListFilter),
 	)
 
 	class Meta:

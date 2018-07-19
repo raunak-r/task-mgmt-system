@@ -9,6 +9,7 @@ from django.db.models import Count
 # Imports from models.py of this app
 from models import Task
 from models import Comment
+from models import User
 
 # Create your views here.
 class Pages(View):
@@ -93,9 +94,12 @@ class Tasks(View):
 			if t == '' or l == '' or cby == '' or due == '':
 				return HttpResponse('title, label, author, due Date are mandatory Fields.', status=200)
 
-			entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = cby, dueDate = due)
+			user = User.objects.get(username = cby) #Get User Instance from given name
+			entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = user, dueDate = due)
 			entry.save()
 			return HttpResponse('Success', status=200)
+		except User.DoesNotExist, e:
+			return HttpResponse('User does not exists in the User Table', status=200)
 		except Exception, e:
 			error = "Please provide all the details:- 'title', 'desc',\
 					'label', 'color', 'comments', 'author', 'due' where\
@@ -194,15 +198,21 @@ class Comments(View):
 			tid = c['tid']
 			cby = c['author']
 			ctext = c['text']
-			
+
 			if ctext == '' or tid == '' or cby == '':
 				return HttpResponse('Comment, TaskId, Author are mandatory Fields.')
 
-			entry = Comment(taskId_id = tid, createdBy = cby, commentText = ctext)
+			user = User.objects.get(username = cby) #Get User Instance from given name
+
+			# It should be Noted that taskId_id is set by the exact id as defined in the database
+			# but createdBy attribute is set by an instance of the User.
+			entry = Comment(taskId_id = tid, createdBy = user, commentText = ctext)
 			entry.save()
 			return HttpResponse('Success', status=200)
+		except User.DoesNotExist as e:
+			return HttpResponse('User does not exists in the User Table', status=200)
 		except Exception as e:
-			return HttpResponse('Please Provide a Task Id which exists in the Database. text, tid, author are mandatory Fields.', status=200)
+			return HttpResponse('Please Provide a Task Id, and Author which exists in the Database. text, tid, author are mandatory Fields.', status=200)
 
 	def put(self, request):		# Edit a comment
 		# http://127.0.0.1:8000/Notes/comments/?id=1

@@ -72,8 +72,16 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 ```
 
 ## DATABASE EXPLAINED
-
+### User Table
+Username and Active Status can be changed later.
+```
+	userId = models.AutoField(primary_key=True)
+	username = models.CharField(max_length=20, blank=False)
+	createdOn = models.DateTimeField(auto_now_add=True)
+	isActive = models.BooleanField(default=True)
+```
 ### Task Table
+Has a Foriegn Key Field to User Table.
 * FIELDS THAT CANNOT BE BLANK = Title. Label. CreatedBy. DueDate
 * CAN BE BLANK = Description. Color. Comments. Attachment
 ```
@@ -96,11 +104,12 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 	color = CharField(max_length=7, choices=COLOURS, blank=True) #STORE A HEX FIELD.
 	attachment = FileField(upload_to='attachments', blank=True)
 	comments = CharField(max_length=255, blank=True)
-	createdBy = CharField(max_length=10, blank=False)
+	createdBy = models.ForeignKey(User, null=True)
 	dueDate = DateField(null=False)
 ```
 
 ### Comments Table
+Has 2 Foreign Key Fields - To Comments Table and User Table.
 * FIELDS THAT CANNOT BE BLANK = createdBy, CommentText.
 * Rest all are auto inserted.
 ```
@@ -108,7 +117,7 @@ INDEX PAGE: > http://127.0.0.1:8000/Notes/index/
 	taskId = ForeignKey(Task, null=False, blank=False)
 	createdOn = DateTimeField(auto_now_add=True)
 	UpdatedOn = DateTimeField(auto_now_add=True)
-	createdBy = CharField(max_length=10, blank=False)
+	createdBy = models.ForeignKey(User)
 	commentText = CharField(max_length=100, blank=False)
 ```
 ## Acknowledgments

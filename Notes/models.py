@@ -39,7 +39,7 @@ class Task(models.Model):
 	# createdBy = models.CharField(max_length=10, blank=False)
 	dueDate = models.DateField(null=False)
 	isDeleted = models.BooleanField(default=False)
-	createdBy = models.ForeignKey(User, null=True)
+	createdBy = models.ForeignKey(User)
 
 	def __str__(self):
 		return '%s ' % (self.title)
@@ -63,8 +63,9 @@ class Comment(models.Model):
 	taskId = models.ForeignKey(Task, null=False, blank=False) #UNFORTUNATELY RENAMED TO taskId_id
 	createdOn = models.DateTimeField(auto_now_add=True)
 	UpdatedOn = models.DateTimeField(auto_now_add=True)
-	createdBy = models.CharField(max_length=10, blank=False) #CANNOT be blank.
+	# createdBy = models.CharField(max_length=10, blank=False) #CANNOT be blank.
 	commentText = models.CharField(max_length=100, blank=False)
+	createdBy = models.ForeignKey(User)
 
 	def __str__(self):
 		return '%s' % (self.commentText)
