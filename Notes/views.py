@@ -235,10 +235,34 @@ class Comments(View):
 
 class Statistics(View):
 	def get(self, request):
-		c = Comment.objects.values('taskId').annotate(total=Count('taskId')).order_by('-total')
-		# print(c)
-		# print(c[0])
-		# print(c[0].get('taskId'))
+		str = '' #Define this to be sent via HttpResponse
+		
+		# Get Task with Max Comments
+		commentDict = Comment.objects.values('taskId').annotate(total=Count('taskId')).order_by('-total')
+		task = Task.objects.get(taskId = commentDict[0].get('taskId'))
+		str = ('The Task with maximum comments\
+				 is = <b>%s</b> with %d Comments'\
+				 %(task.title, commentDict[0].get('total')))
 
-		e = Task.objects.get(taskId = c[0].get('taskId'))
-		return HttpResponse('Task with maximum comments is = <b>%s</b> with %d Comments' %(e.title, c[0].get('total')), status=200)
+		# Get User with Maximum Tasks given that task is Not Deleted by the User
+		taskDict = Task.objects.filter(isDeleted = False).values('createdBy').annotate(total=Count('createdBy')).order_by('-total')
+		user = User.objects.get(userId = taskDict[0].get('createdBy'))
+		str = str + ('</br></br>The User posting maximum\
+		 			task is = <b>%s</b> with %d Tasks' 
+		 			%(user.username, taskDict[0].get('total')))
+		
+		# Get User with Maximum Comments given that task is Not Deleted by the User
+		task = Task.objects.filter(isDeleted = False)
+		taskIds = []	#Create list of Not Deleted Task Id's
+		for t in task:
+			taskIds.append(t.taskId)
+
+				# Get those comments whose task Id is Not deleted
+		commentDict = Comment.objects.filter(taskId__in=taskIds).values('createdBy').annotate(total=Count('createdBy')).order_by('-total')
+		user = User.objects.get(userId = commentDict[0].get('createdBy'))
+		str = str + ('</br></br>The User posting maximum\
+		 			comments is = <b>%s</b> with %d Comments' 
+		 			%(user.username, commentDict[0].get('total')))
+		
+
+		return HttpResponse(str, status=200)
