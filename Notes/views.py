@@ -1,6 +1,6 @@
 # Core Django Imports
 from django.shortcuts import render
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse, QueryDict, JsonResponse
 from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.views.generic import View
@@ -18,60 +18,53 @@ class Pages(View):
 		return HttpResponse(html, status=200)
 
 class Tasks(View):
-	def createTaskStr(self, t):		#Format the string for printing purposes
-		cmntList = Comment.objects.filter(taskId_id = t.taskId)
-		str = ('LABEL = %s</br>\
-				<b>TASK ID = %d</b></br>\
-				DUE DATE = <b>%s</b></br>\
-				TITLE = <b>%s</b></br>\
-				DESCRIPTION = %s</br>\
-				AUTHOR = %s</br>\
-				COMMENT = <i>%s</i></br>'
-				% (t.label, t.taskId, t.dueDate, t.title, t.description, t.createdBy, t.comments))
+	def createTaskDict(self, t):		#Format the dict for Json purposes
+		dict = {
+			'label' : t.label,
+			'title' : t.title,
+			'taskId' : t.taskId,
+			'dueDate' : t.dueDate,
+			'description' : t.description,
+			'createdBy' : (User.objects.get(userId = t.createdBy_id)).username,
+			'comments' : t.comments,
+		}
 
-		# ADD COMMENT ATTRIBUTES
-		if not cmntList:	#WHEN THERE ARE NO ADDITIONAL COMMENTS. WHEN SET IS EMPTY
-			str = str + '</br></br>'
-		else:		#WHEN THE QUERY SET IS NOT EMPTY
-			str = str + 'Addn. Comments</br>'
+		cmntList = Comment.objects.filter(taskId_id = t.taskId)	#get corresponding comments QuerySet
+		if cmntList:
+			dict.update({'commentList' : []})
 			for c in cmntList:
-				str = str + ('Id = %d\
-				<b>Text =</b> <i>%s</i>\
-				<b>Posted By =</b> %s</br>'
-				%(c.commentId, c.commentText, c.createdBy))
-
-			str = str + '</br></br>'
-		return str
+				commentDict = {
+					'commentText' : c.commentText,
+					'createdBy' : User.objects.get(userId = c.createdBy_id).username,
+					'createdOn' : c.createdOn,
+				}
+				dict['commentList'].append(commentDict)
+		return dict
 
 	def get(self, request):
-		# - Get the task details (GET /tasks/<task_id>/)
-		# http://127.0.0.1:8000/Notes/tasks/?id=6
-		try:	
+		try:
 			id = int(request.GET.get('id', '0'))
-			if id != 0:
-				task = []
-				tasks = Task.objects.get(taskId=id, isDeleted = False)
-				# Send the Task Object to receive a nicely formatted string for printing
-				string = self.createTaskStr(tasks)
-				task.append(string)
+			response={}	#Initialize response dict
+			response['status'] = '200'
+			response['result'] = []
 
-				return HttpResponse(task, status=200)
+			# - Get the task details (GET /tasks/<task_id>/)
+			# http://127.0.0.1:8000/Notes/tasks/?id=6
+			if id != 0:
+				t = Task.objects.get(taskId=id, isDeleted = False)
+				dict = self.createTaskDict(t)
+				response['result'].append(dict)
+				
+				return JsonResponse(response, status=200)
 
 			# - Get all tasks grouped by list (GET / tasks/)
 			# http://127.0.0.1:8000/Notes/tasks/
-			taskList = []
-			Labels = ['<h3>***TODO***</h3>', '<h3>***DOING***</h3>', '<h3>***DONE***</h3>']
+			tasks = Task.objects.filter(isDeleted = False).order_by('label')	#Get Not Deleted Tasks
+			for t in tasks:				
+				dict = self.createTaskDict(t)
+				response['result'].append(dict)
 
-			for i in range(1,4):
-				taskList.append(Labels[i-1])
-				tasks = Task.objects.filter(label=i, isDeleted = False)
-				if not tasks: #i.e. Query Set returned 0 Objects
-					taskList.append("<b>No Tasks Present in Database</br></b>") 
-				for t in tasks:
-					# Send the Task Object to receive a nicely formatted string for printing
-					str = self.createTaskStr(t)	
-					taskList.append(str)
-			return HttpResponse(taskList, status=200)
+			return JsonResponse(response, status=200)
 
 		except Task.DoesNotExist as e:
 			return HttpResponse("Task Not Found", status=200)
@@ -155,42 +148,33 @@ class Comments(View):
 	def get(self, request):		#Get all Comments
 		# http://127.0.0.1:8000/Notes/comments/
 		try:
-			# 1st CHECK IF COMMENTS DB IS EMPTY NOT
-			cmntlist = Comment.objects.all()
-			if not cmntlist:
-					return HttpResponse('No Comments in the Database.', status=200)
+			response = {}
+			response['status'] = 200
+			response['result'] = []
 
-			# IF NOT EMPTY
-			comments = []
-			for i in range(1,4):
-				tasks = Task.objects.filter(label=i)	#Read all tasks by label
-				for t in tasks:
-					cmntList = Comment.objects.filter(taskId_id = t.taskId) #filter comments by that Task ID
-					str = ''
-					if cmntList:	#If cmntlist NOT empty
-						str = ('Task Id = %d\
-								<b>Title = %s</b></br>'
-								% (t.taskId, t.title))
-						for c in cmntList:
-							str = str + ('Id = %d\
-							Text = <i>%s</i></br>\
-							Posted By = %s\
-							Date Posted = %s</br>'
-							%(c.commentId, c.commentText, c.createdBy, c.createdOn))
-						str = str + '</br>'
-					comments.append(str)
-			return HttpResponse(comments, status=200)
+			# Get Query Set of all the comments from the Table ordered by Posted First
+			cmntList = Comment.objects.all().order_by('-taskId_id')
+
+			# for an instance in the QuerySet
+			for c in cmntList:
+				task = Task.objects.get(taskId = c.taskId_id)	# Get the Task instance by using foreign key
+				if task.isDeleted == True:	#If it is not active then do not add
+					continue
+				commentDict = {
+					'taskId' : task.taskId,
+					'title' : task.title,
+					'commentText' : c.commentText,
+					'commentId' : c.commentId,
+					'createdBy' : User.objects.get(userId = c.createdBy_id).username,
+				}
+				response['result'].append(commentDict)
+
+			return JsonResponse(response, status=200)
+		
+		except Comment.DoesNotExist, e:
+			return HttpResponse('No Comments in the Database.', status=200)
 		except Exception as e:
 			return HttpResponse(e, status=400)
-
-	# def get(self, request, id):		#Get Comment by id in url
-	# 	# http://127.0.0.1:8000/Notes/comments/
-	# 	comments = Comment.objects.filter(taskId = id)
-	# 	cmntList = []
-	# 	for c in comments:
-	# 		cmntList.append(c)
-	# 		cmntList.aplapend("</br>")
-	# 	return HttpResponse(cmntList, status=200)
 
 	def post(self, request):	# Post a new Comment
 		try:	
