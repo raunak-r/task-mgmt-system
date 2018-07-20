@@ -67,7 +67,7 @@ class Tasks(View):
 			return JsonResponse(response, status=200)
 
 		except Task.DoesNotExist as e:
-			return HttpResponse("Task Not Found", status=200)
+			return HttpResponse("Task Not Found", status=400)
 		except Exception as e:
 			return HttpResponse(e, status=400)
 
@@ -90,14 +90,14 @@ class Tasks(View):
 			user = User.objects.get(username = cby) #Get User Instance from given name
 			entry = Task(title = t, description = d, label = l, color = col, comments = co, createdBy = user, dueDate = due)
 			entry.save()
-			return HttpResponse('Success', status=200)
+			return HttpResponse('Success', status=201)
 		except User.DoesNotExist, e:
-			return HttpResponse('User does not exists in the User Table', status=200)
+			return HttpResponse('User does not exists in the User Table', status=400)
 		except Exception, e:
 			error = "Please provide all the details:- 'title', 'desc',\
 					'label', 'color', 'comments', 'author', 'due' where\
 					Title, Label, CreatedBy, Due Date are mandatory Fields."
-		return HttpResponse(error, status=500)
+		return HttpResponse(error, status=400)
 
 	def put(self, request):		# - Edit a task (PUT /tasks/<task_id>/)
 		# http://127.0.0.1:8000/Notes/tasks/?id=3
@@ -123,26 +123,26 @@ class Tasks(View):
 				entry.dueDate = taskDetails['due']
 
 			entry.save()
-			return HttpResponse('Task Updated Successfully', status=200)
+			return HttpResponse('Task Updated Successfully', status=201)
 		except Task.DoesNotExist as e:
-			return HttpResponse("Task Not Found. Therefore cannot be updated", status=200)
+			return HttpResponse("Task Not Found. Therefore cannot be updated", status=400)
 		except Exception as e:
-			return HttpResponse(e, status=200)
+			return HttpResponse(e, status=400)
 
 	def delete(self, request):		# Delete a task (DELETE /tasks/<task_id>/)
 		try:	
 			id = int(request.GET.get('id', '0'))
 			if id == 0:
-				return HttpResponse('Please give taskId in the url.', status=200)
+				return HttpResponse('Please give taskId in the url.', status=400)
 			
 			task = Task.objects.get(taskId=id)
 			task.delete()
 			return HttpResponse('Task Deleted', status=200)
 
 		except Task.DoesNotExist as e:
-			return HttpResponse('Task Not Found, Cannot be Deleted.', status=200)
+			return HttpResponse('Task Not Found, Cannot be Deleted.', status=400)
 		except Exception as e:
-			return HttpResponse(e, status=200)	
+			return HttpResponse(e, status=400)	
 
 class Comments(View):
 	def get(self, request):		#Get all Comments
@@ -172,7 +172,7 @@ class Comments(View):
 			return JsonResponse(response, status=200)
 		
 		except Comment.DoesNotExist, e:
-			return HttpResponse('No Comments in the Database.', status=200)
+			return HttpResponse('No Comments in the Database.', status=400)
 		except Exception as e:
 			return HttpResponse(e, status=400)
 
@@ -192,11 +192,11 @@ class Comments(View):
 			# but createdBy attribute is set by an instance of the User.
 			entry = Comment(taskId_id = tid, createdBy = user, commentText = ctext)
 			entry.save()
-			return HttpResponse('Success', status=200)
+			return HttpResponse('Success', status=201)
 		except User.DoesNotExist as e:
-			return HttpResponse('User does not exists in the User Table', status=200)
+			return HttpResponse('User does not exists in the User Table', status=400)
 		except Exception as e:
-			return HttpResponse('Please Provide a Task Id, and Author which exists in the Database. text, tid, author are mandatory Fields.', status=200)
+			return HttpResponse('Please Provide a Task Id, and Author which exists in the Database. text, tid, author are mandatory Fields.', status=400)
 
 	def put(self, request):		# Edit a comment
 		# http://127.0.0.1:8000/Notes/comments/?id=1
@@ -207,15 +207,15 @@ class Comments(View):
 			c = QueryDict(request.body)
 			c = str(c['comment'])
 			if c == '':
-				return HttpResponse('Please give the new comment', status=200)
+				return HttpResponse('Please give the new comment', status=400)
 			entry.commentText = c
 			entry.save()
-			return HttpResponse('Comment Updated Successfully', status=200)
+			return HttpResponse('Comment Updated Successfully', status=201)
 
 		except Comment.DoesNotExist, e:
-			return HttpResponse("Comment Not Found. Therefore cannot be updated", status=200)
+			return HttpResponse("Comment Not Found. Therefore cannot be updated", status=400)
 		except Exception as e:
-			return HttpResponse('Provide commentId in the url, and new comment in comment attribute.', status=200)
+			return HttpResponse('Provide commentId in the url, and new comment in comment attribute.', status=400)
 
 class Statistics(View):
 	def get(self, request):
