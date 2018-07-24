@@ -1,9 +1,12 @@
 # Core Django Imports
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.http import HttpResponse, QueryDict, JsonResponse
-from django.db.models.query import QuerySet
 from django.template.loader import render_to_string
 from django.views.generic import View
+from django.core import serializers
+
+# Imports from Django Db
+from django.db import connection
 from django.db.models import Count
 
 # Imports from models.py of this app
@@ -25,7 +28,7 @@ class Tasks(View):
 			'taskId' : t.taskId,
 			'dueDate' : t.dueDate,
 			'description' : t.description,
-			'createdBy' : (User.objects.get(userId = t.createdBy_id)).username,
+			'createdBy' : t.createdBy.username,
 			'comments' : t.comments,
 		}
 
@@ -35,7 +38,7 @@ class Tasks(View):
 			for c in cmntList:
 				commentDict = {
 					'commentText' : c.commentText,
-					'createdBy' : User.objects.get(userId = c.createdBy_id).username,
+					'createdBy' : c.createdBy.username,
 					'createdOn' : c.createdOn,
 				}
 				dict['commentList'].append(commentDict)
@@ -55,6 +58,8 @@ class Tasks(View):
 				dict = self.createTaskDict(t)
 				response['result'].append(dict)
 				
+				# return render(request, 'tasks.html', response)
+				# return render_to_response('tasks.html', {'response': sorted(response.iteritems())})
 				return JsonResponse(response, status=200)
 
 			# - Get all tasks grouped by list (GET / tasks/)
@@ -151,26 +156,27 @@ class Comments(View):
 			response = {}
 			response['status'] = 200
 			response['result'] = []
-
 			# Get Query Set of all the comments from the Table ordered by Posted First
 			cmntList = Comment.objects.all().order_by('-taskId_id')
-
+			# data = serializers.serialize('json', Comment.objects.all().order_by('-taskId_id'), fields=('commentText', 'commentId'))
+			# print(data)
 			# for an instance in the QuerySet
 			for c in cmntList:
-				task = Task.objects.get(taskId = c.taskId_id)	# Get the Task instance by using foreign key
-				if task.isDeleted == True:	#If it is not active then do not add
+				# task = Task.objects.get(taskId = c.taskId_id)	# Get the Task instance by using foreign key
+				if c.taskId.isDeleted == True:	#If it is not active then do not add
 					continue
 				commentDict = {
-					'taskId' : task.taskId,
-					'title' : task.title,
+					'taskId' : c.taskId.taskId,
+					'title' : c.taskId.title,
 					'commentText' : c.commentText,
 					'commentId' : c.commentId,
-					'createdBy' : User.objects.get(userId = c.createdBy_id).username,
+					'createdBy' : c.createdBy.username,
 				}
 				response['result'].append(commentDict)
-
+			
 			return JsonResponse(response, status=200)
-		
+			# return JsonResponse(data, safe=False, status=200)
+		 
 		except Comment.DoesNotExist, e:
 			return HttpResponse('No Comments in the Database.', status=400)
 		except Exception as e:

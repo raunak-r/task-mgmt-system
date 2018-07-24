@@ -1,0 +1,24 @@
+<!--DOCTYPE html --> 
+<html>
+	<head>
+	</head>
+
+	<body>
+		<p>{{ status }}	</p>
+
+		<p>{% for i in result %} </p>
+				{{ i }}</br>
+			
+				{% for key, value in i %}
+					<p>{{ key }}: {{value}}</br></p>
+				{% endfor %}
+			
+			{% endfor %}
+
+			<!-- {% for key, value in response.items %}
+    <tr>
+        <td> {{ key }}: </td> <td> {{ value }} </td>
+    </tr>
+			{% endfor %} -->
+	</body>
+</html>
