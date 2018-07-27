@@ -43,29 +43,41 @@ def visionApi(request):
 
 	# Instantiates a client
 	client = vision.ImageAnnotatorClient()
-
 	# The name of the image file-receipt to annotate
 	filename = os.path.join(os.path.dirname(__file__), filename)
+	print(filename)
 
 	# Loads the image-receipt into memory
 	with io.open(filename, 'rb') as image_file:
 	    content = image_file.read()
 	image = types.Image(content=content)
 
-	# # 1. Label Detection
-	# response = client.detection(image=image)
-	# print(response)
-	# labels = response.label_annotations
+
+	# # 1. LABEL DETECTION
+	# response = client.label_detection(image=image)
+	# # print(response)
+	# # print(response)
+	# labels = response.label_annotations	#Get the label_annotations Dicts
 	# # print(labels)
 	# for l in labels:
-	# 	print(l.description)
+	# 	print('%s = %0.2f' % (l.description, l.score*100))
 
-	# # 2. Text Detection
+	# 2. TEXT DETECTION
 	response = client.text_detection(image=image)
-	# print(response)
-
-	texts = response.text_annotations
+	texts = response.text_annotations #Get the text_annotations Dicts
 	# print(texts)	# print all the dictionaries in the text_annotations
 	print(texts[0].description)
+
+	# # 3. IMAGE PROPERTIES i.e Dominant Colours
+	# response = client.image_properties(image=image)
+
+	# 4. LOGO
+	# response = client.logo_detection(image=image)
+
+	# Output the received response to a txt file
+	with open('RestApi/Bills/data.txt', 'w') as outfile:
+		outfile.write(str(response))
+	outfile.close()
+	image_file.close()
 
 	return HttpResponse('Done, Check terminal.')
