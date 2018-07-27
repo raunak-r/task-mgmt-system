@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Users
+{% endblock %}
+
+{% block content %}
+	<h3>Hola New User! Sign up here</h3>
+
+	<form method="POST" action=''>
+		{{ form.as_p }}
+		<input type='Submit' value='Create New User' />
+	</form>
+
+{% endblock %}

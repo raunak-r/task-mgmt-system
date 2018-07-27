@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+	Users
+{% endblock %}
+
+{% block content %}
+	<h3> Users </h3>
+	<p>status = {{ status }}	</p>
+	<!-- <p>result = {{ result }}	</p> -->
+	
+	<p>{% for i in result %}
+			<p>Name = <b>{{ i.username }}</b></br>
+			Id = {{ i.userId }}</br>
+			Created On = {{ i.createdOn }}</br>
+		{% endfor %}
+	</p>
+
+{% endblock %}
+
+{% block footer %}
+	<a href="http://127.0.0.1:8000/Notes/users/post/">New User Signup</a>
+{% endblock %}

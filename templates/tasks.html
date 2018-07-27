@@ -1,24 +1,20 @@
-<!--DOCTYPE html --> 
-<html>
-	<head>
-	</head>
+{% extends "base.html" %}
 
-	<body>
-		<p>{{ status }}	</p>
+{% block title %}
+	Tasks
+{% endblock %}
 
-		<p>{% for i in result %} </p>
-				{{ i }}</br>
-			
-				{% for key, value in i %}
-					<p>{{ key }}: {{value}}</br></p>
-				{% endfor %}
-			
-			{% endfor %}
+{% block content %}
+	<h3> Tasks </h3>
+	<p>status = {{ status }}</p>
 
-			<!-- {% for key, value in response.items %}
-    <tr>
-        <td> {{ key }}: </td> <td> {{ value }} </td>
-    </tr>
-			{% endfor %} -->
-	</body>
-</html>
+	<p>{% for i in result %}
+		<!-- <p>{{ i }}</p> -->
+			{{ i.commentList }}
+			<b>TITLE = {{ i.title }}</b>
+			DESC = {{i.description}}
+		</br></br>
+		{% endfor %}
+	</p>
+
+{% endblock %}

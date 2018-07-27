@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Index{% endblock %}
+
+{% block content %}
+	<p>
+		<ul><a href="http://127.0.0.1:8000/Notes/tasks/">See all Tasks</a></ul>
+		<ul><a href="http://127.0.0.1:8000/Notes/tasks/?id=">See Task by Id</a></ul>
+		<ul><a href="http://127.0.0.1:8000/Notes/tasks/?id=">Post new Task</a></ul>
+		<ul><a href="http://127.0.0.1:8000/Notes/tasks/?id=">Update a task by Id</a></ul>
+		<ul><a href="http://127.0.0.1:8000/Notes/tasks/?id=">Delete a task by Id</a></ul>
+		</br>
+		<ul><a href="http://127.0.0.1:8000/Notes/comments/">See all Comments</a></ul>
+		<ul><a href="http://127.0.0.1:8000/Notes/comments/">Post new Comment</a></ul>
+		</br>
+		<ul><a href="http://127.0.0.1:8000/Notes/stats/">See Statistics</a></ul>			
+	</p>
+{% endblock %}

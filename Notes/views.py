@@ -5,6 +5,8 @@ from django.template.loader import render_to_string
 from django.views.generic import View
 from django.core import serializers
 
+from forms import UserForm
+
 # Imports from Django Db
 from django.db import connection
 from django.db.models import Count
@@ -17,9 +19,51 @@ from models import User
 # Create your views here.
 class Pages(View):
 	def get(self, request):
-		html = render_to_string('base.html')
+		html = render_to_string('index.html')
 		return HttpResponse(html, status=200)
 
+class Users(View):
+	# def get(self, request, args):
+	# 	print(args)
+	# 	if args == 'get':
+	# 		self.yay()
+	# 	elif args == 'post':
+	# 		self.post()
+
+	def get(self, request):	#Get list of all users
+		print('yay')
+		try:
+			response = {}
+			response['status'] = 200
+			response['result'] = []
+
+			users = User.objects.all()
+			for u in users:
+				dict = {
+				'userId' : u.userId,
+				'username' : u.username,
+				'createdOn' : u.createdOn
+				}
+				response['result'].append(dict)
+			return render(request, 'users/usersGet.html', response, status=200)
+			# return JsonResponse(response, status=200)
+		except Exception, e:
+			return HttpResponse(e, status=400)
+
+	def post(self):	#Create new user
+			print("HELLO")
+		# try:
+			form = UserForm()
+			context = {
+				'form' : form
+			}
+			return render('users/usersPost.html', context)
+		# except Exception, e:
+		# 	return HttpResponse(e, status=400)
+
+	# def put(self, request):	#Change username or active status
+
+	# def delete(self, request):	#Delete an user
 class Tasks(View):
 	def createTaskDict(self, t):		#Format the dict for Json purposes
 		dict = {
@@ -58,7 +102,7 @@ class Tasks(View):
 				dict = self.createTaskDict(t)
 				response['result'].append(dict)
 				
-				# return render(request, 'tasks.html', response)
+				return render(request, 'tasks.html', response)
 				# return render_to_response('tasks.html', {'response': sorted(response.iteritems())})
 				return JsonResponse(response, status=200)
 
@@ -69,12 +113,14 @@ class Tasks(View):
 				dict = self.createTaskDict(t)
 				response['result'].append(dict)
 
-			return JsonResponse(response, status=200)
+			# return JsonResponse(response, status=200)
+			return render(request, 'tasks.html', response)
+
 
 		except Task.DoesNotExist as e:
 			return HttpResponse("Task Not Found", status=400)
-		except Exception as e:
-			return HttpResponse(e, status=400)
+		# except Exception as e:
+		# 	return HttpResponse(e, status=400)
 
 	def post(self, request):		# - Create a task (POST /tasks/
 		try:
