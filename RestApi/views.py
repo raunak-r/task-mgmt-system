@@ -2,12 +2,25 @@ from django.shortcuts import render
 import requests
 # Create your views here.
 # p/w = raunak. username = raunakritesh.india@gmail.com
+import json
 
 def ip(request):
-    response = requests.get('http://api.ipstack.com/check?access_key=4151d8748ff647d3da010b4134b97cb0')
-    geodata = response.json()
-    print(geodata)
-    return render(request, 'restapi/ip.html', {
-        'ip': geodata['ip'],
-        'country': geodata['country_name']
+	# Read Api.json. Done this way to not to expose the api keys to public.
+	with open('./../api.json') as json_data:
+		apiData = json.load(json_data)
+
+	ipstackApi = apiData['ipstack']	#Store the api's
+	gmapsApi = apiData['gmaps']
+
+
+	response = requests.get('http://api.ipstack.com/check?access_key=%s' % ipstackApi)
+	geodata = response.json()
+	# pdb.set_trace()
+	
+	return render(request, 'restapi/ip.html', {
+		'ip': geodata['ip'], 'country': geodata['country_name'],
+		'latitude': geodata['latitude'], 'longitude': geodata['longitude'],
+		'api_key': ('%s' % gmapsApi)
     })
+
+# def gmaps(request):

@@ -8,5 +8,5 @@ urlpatterns = [
 # Import from Project Apps
 urlpatterns += [
     url(r'^Notes/', include('Notes.urls')),
-    url(r'^rest/', include('RestApi.urls')),
+    url(r'^restapi/', include('RestApi.urls')),
 ]
