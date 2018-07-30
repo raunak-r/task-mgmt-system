@@ -10,6 +10,8 @@ import os
 from google.cloud import vision
 from google.cloud.vision import types
 
+import re
+import time
 
 def ip(request):
 	# p/w = raunak. username = raunakritesh.india@gmail.com
@@ -33,6 +35,8 @@ def ip(request):
     })
 
 def visionApi(request):
+	t0 = time.time()
+
 	filename = request.GET.get('file', 'bill1.jpg')
 	filename = 'Bills/' + filename
 
@@ -68,6 +72,37 @@ def visionApi(request):
 	# print(texts)	# print all the dictionaries in the text_annotations
 	print(texts[0].description)
 
+	amounts = []
+	regex = {
+	'cost' : "[0-9]+[.][0-9]+",
+	# 'gst' : "",
+	# 'date' : "",
+	'currSym' : "$| ",
+	'extra' : "^0-9.",
+	}
+
+	t1 = time.time()
+	for t in texts:
+		# print(t)
+		text = (t.description).encode('ascii', 'ignore')
+		# if re.match(r'[N|n]et|[A|a]mount|[T|t]otal', text):
+		# 	print(text)
+		if re.match('[0-9]+[.][0-9]+', text):
+			print(text)			
+			# Clean it to retain only numbers
+			text = re.sub('[^0-9.]', '', text)
+
+			amounts.append(float(text))
+
+	print('TOTAL = %0.2f' % max(amounts))
+	print('Time to iterate on data.txt = %s' %(time.time() - t1))		
+
+
+	# ERROR CLASSIFICATION
+	# 1. when CHANGE DUE is present
+	# 2. Handle comma, currency symbol
+	# 3. 
+
 	# # 3. IMAGE PROPERTIES i.e Dominant Colours
 	# response = client.image_properties(image=image)
 
@@ -80,4 +115,5 @@ def visionApi(request):
 	outfile.close()
 	image_file.close()
 
+	print('Total Time = %s' %(time.time() - t0))		
 	return HttpResponse('Done, Check terminal.')
