@@ -12,6 +12,8 @@ from google.cloud.vision import types
 
 import re
 import time
+import operator
+
 
 def ip(request):
 	# p/w = raunak. username = raunakritesh.india@gmail.com
@@ -68,11 +70,10 @@ def visionApi(request):
 
 	# 2. TEXT DETECTION
 	response = client.text_detection(image=image)
-	texts = response.text_annotations #Get the text_annotations Dicts
+	textDicts = response.text_annotations #Get the text_annotations Dicts
 	# print(texts)	# print all the dictionaries in the text_annotations
-	print(texts[0].description)
+	# print(textDicts[0].description)
 
-	amounts = []
 	regex = {
 	'cost' : "[0-9]+[.][0-9]+",
 	# 'gst' : "",
@@ -81,21 +82,83 @@ def visionApi(request):
 	'extra' : "^0-9.",
 	}
 
-	t1 = time.time()
-	for t in texts:
-		# print(t)
-		text = (t.description).encode('ascii', 'ignore')
-		# if re.match(r'[N|n]et|[A|a]mount|[T|t]otal', text):
-		# 	print(text)
-		if re.match('[0-9]+[.][0-9]+', text):
-			print(text)			
-			# Clean it to retain only numbers
-			text = re.sub('[^0-9.]', '', text)
+	t1 = time.time()	#TIME THIS LOOP
 
-			amounts.append(float(text))
 
-	print('TOTAL = %0.2f' % max(amounts))
+	amountList = []	#store only the amount values
+	amounts = []	#TO store all text dicts which match our search
+	texts = []	#Store all costs/amounts dicts
+
+	for t in textDicts:
+		description = (t.description).encode('ascii', 'ignore')	#Convert to ascii.
+
+		if re.match(r'[n|N][e|E][t|T]|[A|a][m|M][o|O][u|U][n|N][t|T]|[T|t][o|O][t|T][a|A][l|L]', description):
+			d = {
+				'description' : description,
+				'bounding_poly' : t.bounding_poly,
+			}
+			texts.append(d)
+		
+		if re.match('[$][0-9]+[.][0-9]+', description):
+			description = re.sub('[^0-9.]', '', description)	# Clean it to retain only numbers
+			d = {
+				'description' : float(description),
+				'bounding_poly' : t.bounding_poly,
+			}
+
+			amounts.append(d)
+			amountList.append(float(description))	#Append only the value
+
+		# If 'CHANGE'/'DISCOUNT'/'COUPON' keyword is present in the bill then do this
+		# then don't select any price which has y vertex above first y axis obtained in 
+
+		# 
+	# print('TOTAL using max = %0.2f' % max(amountList))
+
+	# # print the amounts before sorting
+	# print("Before Sorting")
+	# for a in amounts:
+	# 	print(a['description'])
+	
+	# Sort amounts dicts in decreasing order 
+	amounts.sort(key=operator.itemgetter('description'), reverse = True)
+	
+	# # print the amounts AFTER sorting
+	# print("After Sorting")
+	# for a in amounts:
+	# 	print(a['description'])
+
+	amounts = amounts[0:6]
+	
+	print(texts)
+	print(amounts)
+
+	# # Code to extract co-ordinates 
+	# print(type(((texts[0])['bounding_poly'].vertices[0]).x))
+
+	# # Find nearest distance between text and amount
+	totalAmount = '' #(amounts[0])['description']	#possible that no amount is present in bill
+	minDist = 1000
+	for i in texts:
+		for j in amounts:
+			distX = abs((j['bounding_poly'].vertices[1]).x - (i['bounding_poly'].vertices[0]).x)
+			distY = abs((j['bounding_poly'].vertices[1]).y - (i['bounding_poly'].vertices[0]).y)
+			print('%d' %(distX + distY))
+			if (distX + distY) < minDist:
+				minDist = distX + distY
+				totalAmount = j['description']
+
+
+	print('USing algo %s' %totalAmount)
+
+
+
 	print('Time to iterate on data.txt = %s' %(time.time() - t1))		
+
+
+
+
+
 
 
 	# ERROR CLASSIFICATION
