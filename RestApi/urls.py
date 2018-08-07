@@ -7,6 +7,6 @@ from views import visionApiScript
 
 urlpatterns = [
     url(r'^ip', ip),
-    url(r'^vision/File', visionApiFile),
-    url(r'^vision/Script', visionApiScript),
+    url(r'^vision/file', visionApiFile),
+    url(r'^vision/script', visionApiScript),
 ]
