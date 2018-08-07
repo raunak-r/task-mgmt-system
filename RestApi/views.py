@@ -42,28 +42,71 @@ def visionApiFile(request):
 
 	# 1. Give file name manually
 	filename = request.GET.get('file', 'bill1.jpg')
-	extractText(filename, 0)
+	ocrTotal = extractText(filename)
 
+	print('\n' + filename)
+	print('OCRTOTAL = %s' %(ocrTotal))
 	print('SCRIPT RUN TIME = %s' %(time.time() - t0))
+
 	return HttpResponse('Done')
 
 def visionApiScript(request):
 	t0 = time.time()
+	count = 0
+	correct = 0
+	incorrectBills = []
 
 	### 2. Read receipts.txt and do the thing
 	with io.open('RestApi/Receipts/receipts.txt', 'r') as receipt:
 		for line in receipt:
 			array = re.split(r'\s+', line)
 			filename = array[0]
-			totalCost = array[1]
-			extractText(filename, totalCost)
+			originalCost = array[1]
+			
+			count = count + 1
 
-	print('SCRIPT RUN TIME = %s' %(time.time() - t0))
+			t1 = time.time()
+			ocrTotal = extractText(filename)
+
+			# # Identify correct and incorrect
+			check = checkCosts(ocrTotal, originalCost)
+			if check == 1:	#Correct Identification
+				correct = correct + 1
+				print('\n' + filename)
+				print('OCRTOTAL = %s ORIGINALCOST = %s' %(ocrTotal, originalCost))
+				print('ITERATION TIME (response.txt) = %s' %(time.time() - t1))
+			else:	#NOT CORRECT
+				d = {
+					'filename' : filename,
+					'ocrTotal' : ocrTotal,
+					'originalCost' : originalCost,
+					'iterationTime' : (time.time() - t1),
+				}
+				incorrectBills.append(d)
+	
+	print("\n*****INCORRECT BILLS *****")
+	for d in incorrectBills:
+		print(d)
+
+
+	print('\nSCRIPT RUN TIME = %s' %(time.time() - t0))
+	print('\nTotal Bills = %d + CORRECTLY IDENTIFIED = %d' %(count, correct))
+	print('\n')
 	return HttpResponse('Done')
 
+def checkCosts(ocrTotal, originalCost):
+	ocrTotal = str(ocrTotal)
+	originalCost = str(originalCost)
+
+	if (ocrTotal in originalCost):
+		return 1
+	elif (originalCost in ocrTotal):
+		return 1
+	else:
+		return 0
 
 
-def extractText(filename, totalOriginal):
+def extractText(filename):
 	# Instantiates a client
 	client = vision.ImageAnnotatorClient()
 
@@ -71,7 +114,6 @@ def extractText(filename, totalOriginal):
 	currentDir = os.path.dirname(__file__)
 	filename = 'Receipts/Bills/' + filename
 	filename = os.path.join(currentDir, filename)
-	print(filename)
 
 	# Loads the image-receipt into memory
 	with io.open(filename, 'rb') as image_file:
@@ -92,23 +134,24 @@ def extractText(filename, totalOriginal):
 	# TO use handwriting algo
 		# https://cloud.google.com/vision/docs/detecting-text#vision-text-detection-python
 	response = client.text_detection(image=image)
-	extractTotal(response, totalOriginal)
 
 	# Output the received response to a txt file
 	with open(currentDir + '/Receipts/response.txt', 'w') as outfile:
 		outfile.write(str(response))
 	outfile.close()
 	image_file.close()
-	return
+
+	ocrTotal = extractTotal(response)
+	return ocrTotal
 
 
-def extractTotal(response, totalOriginal):	
+def extractTotal(response):	
 	textDicts = response.text_annotations #Get the text_annotations Dicts
 
 	regex = {
-		'text' : "net|total|amount",
+		'text' : "net|total|amount|gross|amt",
 		# 'ignoreText' : "change|"
-		'cost' : "[$]{0,1}([0-9]+[,])*[0-9]+[.][0-9]+",
+		'cost' : "[$]{0,1}([0-9]+[,])*[0-9]+[.]{1}[0-9]+$",
 		'percent' : "[0-9]+[.][0-9]+[%]",
 		# 'gst' : "GST[.][A-Z0-9]{15}",
 		'date' : "",
@@ -116,7 +159,7 @@ def extractTotal(response, totalOriginal):
 		'extra' : "^0-9.",
 	}
 
-	t1 = time.time()	#TIME THIS LOOP
+	# t1 = time.time()	#TIME THIS LOOP
 
 	texts = []	#Store all dicts matching regex['text']
 	amounts = []	#TO store all dicts matching regex['cost']
@@ -155,7 +198,7 @@ def extractTotal(response, totalOriginal):
 	# print(type(((texts[0])['bounding_poly'].vertices[0]).x))
 
 	# # CHECK 1 Find nearest distance between text and amount
-	totalAmount = '' #(amounts[0])['description']	#POSSIBLE that no amount is present in bill
+	ocrTotal = '' #(amounts[0])['description']	#POSSIBLE that no amount is present in bill
 	minDist = 2000
 	for i in texts:
 		# textX = (i['bounding_poly'].vertices[1].x + i['bounding_poly'].vertices[2].x)/2
@@ -182,7 +225,7 @@ def extractTotal(response, totalOriginal):
 			if distance < minDist:
 				minDist = distance
 				amountsDist.insert(0, j)
-				totalAmount = j['description']
+				ocrTotal = j['description']
 
 	# # # CHECK 2 Find MAX AREA of Text
 	# for i in amounts:
@@ -191,16 +234,13 @@ def extractTotal(response, totalOriginal):
 	# 	area = length * breadth
 
 	if len(texts) == 0:
-		totalAmount = amounts[0]['description']
+		ocrTotal = amounts[0]['description']
 
 	# print(textDicts[0].description)
 	# print(texts)
 	# print(amounts)
 	# print(amountsDist)
-	print("TOTAL = %s ORIGINAL = %s" %(totalAmount, totalOriginal))
-	if totalAmount == totalOriginal:
-		print('YAYAAAAA')
-	print('TIME to iterate on response.txt = %s' %(time.time() - t1))		
+	# print('ITERATION TIME (response.txt) = %s' %(time.time() - t1))		
 
 
 
@@ -219,4 +259,4 @@ def extractTotal(response, totalOriginal):
 	# 4. LOGO
 	# response = client.logo_detection(image=image)
 
-	return
+	return ocrTotal
