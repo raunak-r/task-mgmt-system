@@ -1,28 +1,19 @@
-Package                  Version  
------------------------- ---------
-cachetools               2.1.0    
-certifi                  2018.4.16
-chardet                  3.0.4    
-Django                   1.8      
-enum34                   1.1.6    
-futures                  3.2.0    
-google-api-core          1.2.1    
-google-auth              1.5.0    
-google-cloud-vision      0.33.0   
-googleapis-common-protos 1.5.3    
-grpcio                   1.13.0   
-idna                     2.7      
-pip                      18.0     
-postgres                 2.2.1    
-protobuf                 3.6.0    
-psycopg2                 2.7.5    
-psycopg2-binary          2.7.5    
-pyasn1                   0.4.4    
-pyasn1-modules           0.2.2    
-pytz                     2018.5   
-requests                 2.19.1   
-rsa                      3.4.2    
-setuptools               40.0.0   
-six                      1.11.0   
-urllib3                  1.23     
-wheel                    0.31.1   
+cachetools==2.1.0
+certifi==2018.4.16
+chardet==3.0.4
+Django==1.8
+enum34==1.1.6
+futures==3.2.0
+grpcio==1.13.0
+idna==2.7
+postgres==2.2.1
+protobuf==3.6.0
+psycopg2==2.7.5
+psycopg2-binary==2.7.5
+pyasn1==0.4.4
+pyasn1-modules==0.2.2
+pytz==2018.5
+requests==2.19.1
+rsa==3.4.2
+six==1.11.0
+urllib3==1.23
